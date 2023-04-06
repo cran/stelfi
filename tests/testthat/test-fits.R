@@ -1,9 +1,17 @@
-test_that("Hawkes simulation", {
+test_that("Hawkes simulation (1)", {
     ## sim_hawkes example
     set.seed(1234)
     times <- sim_hawkes(mu = 0.3, alpha = 4, beta = 5)
     expect_equal(round(times[1:6], 2),
                  c(4.15,  4.95,  7.80, 14.64, 18.69, 33.61),
+                 tolerance = 0.01)
+})
+test_that("Hawkes simulation (2)", {
+    ## sim_hawkes example
+    set.seed(1234)
+    times <- sim_hawkes(mu = 0.3, alpha = 4, beta = 5, method = "2")
+    expect_equal(round(times[1:6], 2),
+                 c(4.15,  4.22,  4.40, 4.42, 4.43, 5.54),
                  tolerance = 0.01)
 })
 test_that("Simple Hawkes model fitting", {
@@ -61,6 +69,22 @@ test_that("LGCP model fitting (spatial)", {
         expect_equal(pars[3], 0.95, tolerance = 0.1)
     }
 })
+test_that("Simulate LGCP (spatial)", {
+    skip_on_cran()
+    if(requireNamespace("INLA")){
+        data(xyt, package = "stelfi")
+        domain <- sf::st_as_sf(xyt$window)
+        bnd <- INLA::inla.mesh.segment(as.matrix(sf::st_coordinates(domain)[, 1:2]))
+        smesh <- INLA::inla.mesh.2d(boundary = bnd, max.edge = 0.75, cutoff = 0.3)
+        parameters <- c(beta = 1, log_tau = log(1), log_kappa = log(1))
+        set.seed(91234)
+        sim <- sim_lgcp(parameters = parameters, sf = domain, smesh = smesh)
+        expect_equal(round(c(sim$x[1:3]), 3),
+                     c(0.172, 0.175, 0.298),
+                     tolerance = 0.01)
+        expect_equal(c(sim$y[1:3]), c(0, 0, 1), tolerance = 0.1)
+    }
+})
 test_that("LGCP model fitting (spatiotemporal)", {
     skip_on_cran()
     if(requireNamespace("INLA") & requireNamespace("maptools")){
@@ -80,6 +104,23 @@ test_that("LGCP model fitting (spatiotemporal)", {
         expect_equal(pars[1], 0.31, tolerance = 1)
         expect_equal(pars[2], 1.68, tolerance = 1)
         expect_equal(pars[3], -1.06, tolerance = 1)
+    }
+})
+test_that("Simulate LGCP (spatiotemporal)", {
+    skip_on_cran()
+    if(requireNamespace("INLA")){
+        data(xyt, package = "stelfi")
+        domain <- sf::st_as_sf(xyt$window)
+        bnd <- INLA::inla.mesh.segment(as.matrix(sf::st_coordinates(domain)[, 1:2]))
+        smesh <- INLA::inla.mesh.2d(boundary = bnd, max.edge = 0.75, cutoff = 0.3)
+        set.seed(91234)
+        ndays <- 2
+        w0 <- 2
+        tmesh <- INLA::inla.mesh.1d(seq(0, ndays, by = w0))
+        parameters <- c(beta = 1, log_tau = log(1), log_kappa = log(1), atanh_rho = 0.2)
+        sim <- sim_lgcp(parameters = parameters, sf = domain, smesh = smesh, tmesh = tmesh)
+        expect_equal(round(c(sim$x[1:3, 2]), 3), c(0.252, 0.674, 0.575), tolerance = 0.1)
+        expect_equal(c(sim$y[1:3]), c(0, 0, 1), tolerance = 0.1)
     }
 })
 test_that("LGCP model fitting (marked)", {
