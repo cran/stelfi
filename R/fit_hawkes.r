@@ -1,14 +1,22 @@
-#' Self-exciting Hawkes process
+#' Self-exciting Hawkes process(es)
 #'
 #' Fit a Hawkes process using Template Model Builder (TMB). The function \code{fit_hawkes()} fits a
 #' self-exciting Hawkes process with a constant background rate. Whereas, \code{fit_hawkes_cbf()} fits a Hawkes
-#' processes with a user defined custom background function (non-homogeneous background rate).
+#' processes with a user defined custom background function (non-homogeneous background rate). The function
+#' \code{fit_mhawkes()} fits a multivariate Hawkes process that allows for between- and within-stream
+#' self-excitement.
 #' 
 #' @details A univariate Hawkes (Hawkes, AG. 1971) process is a self-exciting temporal point process
 #' with conditional intensity function
-#' \eqn{\lambda(t) = \mu + \alpha \Sigma_{i:\tau_i<t}e^{(-\beta * (t-\tau_i))}}. Here \eqn{\mu} is the
-#' background rate of the process and the summation describes the historic temporal dependence.  Including mark information
-#' results in the conditional intensity \eqn{\lambda(t; m(t)) = \mu + \alpha \Sigma_{i:\tau_i<t}m(\tau_i)e^{(-\beta * (t-\tau_i))}},
+#' \eqn{\lambda(t) = \mu + \alpha \Sigma_{i:\tau_i<t}e^{(-\beta * (t-\tau_i))}}.  Here \eqn{\mu} is the constant
+#' baseline rate, \eqn{\alpha} is the instantaneous increase in intensity after an event, and \eqn{\beta} is the
+#' exponential decay in intensity. The term \eqn{\Sigma_{i:\tau_i<t} \cdots} describes the historic dependence
+#' and the clustering density of the temporal point process, where the \eqn{\tau_i} are the events in
+#' time occurring prior to time \eqn{t}. From this we can derive the following quantities 1) \eqn{\frac{\alpha}{\beta}}
+#' is the branching ratio, it gives the average number of events triggered by an event, and
+#' 2) \eqn{\frac{1}{\beta}} gives the rate of decay of the self-excitement.
+#' Including mark information results in the conditional intensity
+#' \eqn{\lambda(t; m(t)) = \mu + \alpha \Sigma_{i:\tau_i<t}m(\tau_i)e^{(-\beta * (t-\tau_i))}},
 #' where \eqn{m(t)} is the temporal mark. This model can be fitted with \code{fit_hawkes()}.
 #'
 #' @references Hawkes, AG. (1971) Spectra of some self-exciting and mutually exciting point processes.
@@ -39,12 +47,12 @@
 #' \item \code{par}, a numeric vector of estimated parameter values;
 #' \item \code{objective}, the objective function;
 #' \item \code{gr}, the TMB calculated gradient function; and
-#' \item \code{simulate}, a simulation function. 
+#' \item \code{simulate}, (where available) a simulation function. 
 #' }
 #' @examples
 #' \donttest{
 #' ### ********************** ###
-#' ## A typical Hawkes model
+#' ## A Hawkes model
 #' ### ********************** ###
 #' data(retweets_niwa, package = "stelfi")
 #' times <- unique(sort(as.numeric(difftime(retweets_niwa, min(retweets_niwa), units = "mins"))))
@@ -304,3 +312,71 @@ fit_hawkes_cbf <- function(times, parameters = list(),
     obj$background_parameters <- opt$par
     return(obj)
 }
+#' @details A multivariate Hawkes process that allows for between- and within-stream self-excitement.
+#' The conditional intensity for the \eqn{j^{th}} (\eqn{j = 1, ..., N}) stream is given by
+#' \eqn{\lambda(t)^{j*} = \mu_j + \Sigma_{k = 1}^N\Sigma_{i:\tau_i<t} \alpha_{jk} e^{(-\beta_j * (t-\tau_i))}}, where
+#' \eqn{j, k  \in (1, ..., N)}. Here, \eqn{\alpha_{jk}} is the excitement caused by the
+#' \eqn{k^{th}} stream on the \eqn{j^{th}}. Therefore, \eqn{\boldsymbol{\alpha}} is an \eqn{N x N}
+#' matrix where the diagonals represent the within-stream excitement and the off-diagonals
+#' represent the excitement between streams.
+#'
+#' @param stream A character vector specifying the stream ID of each observation in \code{times}
+#' @param parameters A named list of parameter starting values:
+#' \itemize{
+#' \item \code{mu}, a vector of base rates for each stream of the multivariate Hawkes process,
+#' \item \code{alpha}, a matrix of the between- and within-stream self-excitement: the diagonal
+#' elements represent the within-stream excitement and the off-diagonals the excitement between streams,
+#' \item \code{beta}, a vector of the exponential intensity decay for each stream of the multivariate
+#' Hawkes process,
+#' }
+#' @examples
+#' \donttest{
+#' ### ********************** ###
+#' ## A multivariate Hawkes model
+#' ### ********************** ###
+#' data(multi_hawkes, package = "stelfi")
+#' fit <- fit_mhawkes(times = multi_hawkes$times, stream = multi_hawkes$stream,
+#' parameters = list(mu =  c(0.2,0.2),
+#' alpha =  matrix(c(0.5,0.1,0.1,0.5),byrow = TRUE,nrow = 2),
+#' beta = c(0.7,0.7)))
+#' get_coefs(fit)
+#' }
+#' @export
+#' @rdname fit_hawkes
+fit_mhawkes <- function(times, stream,
+                        parameters = list(),
+                        tmb_silent = TRUE,
+                        optim_silent = TRUE, ...){
+    ## general error checks
+    for (i in 2:length(times)) {
+        if ((times[i] - times[i - 1]) < 1.e-10)
+            stop("times must be in ascending order with no simultaneous events")
+    }
+    n_streams <- length(table(stream))
+    ## parameters
+    alpha <- parameters[["alpha"]]
+    beta <- parameters[["beta"]]
+    mu <- parameters[["mu"]]
+    ## error checks
+    if (n_streams != nrow(parameters$alpha) | n_streams != ncol(parameters$alpha))
+        stop("dimensions of alpha must match the number of streams")
+    if (sum(alpha > beta) > 0)
+        stop("alpha(s) must be smaller than or equal to beta")
+    if (sum(alpha < 0) > 0)
+        stop("alpha(s) must be non-negative")
+    events <- as.numeric(factor((stream))) - 1
+    events_per_stream <-  as.numeric(table(stream)) - 1
+    obj <- TMB::MakeADFun(data = list(times = times, events = events,
+                                      N = n_streams,
+                                      EPS = events_per_stream,
+                                      model_type = "multi_hawkes"),
+                      parameters = list(log_mu = log(mu),
+                                        logit_abratio = stats::qlogis(alpha/beta),
+                                        log_beta = log(beta)),
+                      hessian = TRUE, DLL = "stelfi", silent = tmb_silent)
+    trace <- if(optim_silent) 0 else 1
+    opt <- stats::optim(obj$par, obj$fn, obj$gr, control = list(trace = trace), ...)
+    obj$objective <- opt$value
+    return(obj)
+}
+                        

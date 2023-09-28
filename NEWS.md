@@ -1,3 +1,21 @@
+# stelfi (development version)
+
+# stelfi 0.0.3
+
+## Breaking changes
+
+ + None
+
+## New features
+
+ + Fitting of multivariate Hawkes processes `fit_mhawkes()`
+ + Moved away from using `INLA` functionality to `fmesher`
+
+## Minor improvements and fixes
+
+ + Manually creating alias for package-level documentation
+ + Additional testthat tests for fitting functions `fit_mhawkes()` and  `fit_mlgcp()`
+
 # stelfi 0.0.2
 
 ## Breaking changes
