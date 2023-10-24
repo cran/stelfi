@@ -2,7 +2,7 @@ Package: stelfi
 Type: Package
 Title: Hawkes and Log-Gaussian Cox Point Processes Using Template Model
         Builder
-Version: 1.0.0
+Version: 1.0.1
 Date: 2023-09-29
 Authors@R: 
   c(person(given = "Charlotte M.",
@@ -42,7 +42,7 @@ Suggests: testthat (>= 3.1.10), rmarkdown, parallel, spatstat.utils,
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2023-09-28 20:45:48 UTC; charlotte
+Packaged: 2023-10-23 22:46:07 UTC; charlotte
 Author: Charlotte M. Jones-Todd [aut, cre, cph]
     (<https://orcid.org/0000-0003-1201-2781>, Charlotte Jones-Todd
     wrote and continued developmend of the main code.),
@@ -54,4 +54,4 @@ Author: Charlotte M. Jones-Todd [aut, cre, cph]
   Asian Office of Aerospace Research & Development FA2386-21-1-4028 [fnd]
 Maintainer: Charlotte M. Jones-Todd <cmjonestodd@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-09-28 21:00:02 UTC
+Date/Publication: 2023-10-24 10:10:02 UTC

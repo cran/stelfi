@@ -1,8 +1,8 @@
-d8a16e1ac7efb1efc5b3dbad705f62f8 *DESCRIPTION
+7218699c59d7eba6c860311fa4677a14 *DESCRIPTION
 f7ac1d1c67dc59510a42834419f173bc *NAMESPACE
 720893635ec71f3e1450f4fb4792d69e *NEWS.md
 840027c86c1781a53a414e0d5e599dba *R/compile.r
-8b64989a6ee1f44fbd5e8529ba8f6f64 *R/data.r
+c952cc7e03bd128b4825c935f554d72e *R/data.r
 7d8d7ee2756a8723a80e372851095c5a *R/fit_hawkes.r
 aa4c389cd3c34c74cc9afa82e63bc34d *R/fit_lgcp.r
 16c970bacab2f6695ee8f7b612b728d4 *R/fit_mlgcp.r
@@ -26,9 +26,9 @@ cb3888dcada8118fb3c19bf1161b3f52 *data/retweets_niwa.rda
 0d56c1890a354ca49995ce944fce6f25 *data/sasquatch.rda
 677172b353b16797f0c03987ceff6c0b *data/uk_serial.rda
 daac1ed019fd433eddb0e7f930c1b2ee *data/xyt.rda
-d8d46bbe70f884a889bb9ac9ca0da4b5 *inst/doc/stelfi.R
+c5d66d790c4bc1d2c05d7645556facb1 *inst/doc/stelfi.R
 d19bb8255d66869c61b1db7a288f5aee *inst/doc/stelfi.Rmd
-82e3d4c2f0d5bb1b74098b83c4ab144b *inst/doc/stelfi.html
+76362ddecc359a7a39d43732d6385858 *inst/doc/stelfi.html
 8d67df93cf64641d1a9f5503807182e1 *man/fit_hawkes.Rd
 18f22415278cde7a0ea70b591e88c1f2 *man/fit_lgcp.Rd
 80b07e39b8622be9aa03ea59de0f510c *man/fit_mlgcp.Rd
@@ -53,7 +53,7 @@ e267d0e3fe82baf35dfdfebccbb361a9 *man/show_lambda.Rd
 9ce1fd6e62a0da1daae0c31a52f0636e *man/sim_hawkes.Rd
 182a5f5e1662dcd8d7edaa2eec5ef9be *man/sim_lgcp.Rd
 f828e64dc262db8e58593b4594041c1d *man/stelfi.Rd
-5e68c6bf11e8892ebe149cc9019ac07f *man/uk_serial.Rd
+9f517c4dd93da8b9fe597ddefa3ab275 *man/uk_serial.Rd
 86a1cfe43034cdb3872a86e94acc8d4f *man/xyt.Rd
 f94d9f6a5177938469716eac860bbeee *src/custom_hawkes.h
 3902d6871b7fc769b7d1a518737454a3 *src/hawkes.h
@@ -67,6 +67,6 @@ f4206770fd3cda2af0918d9ac91526ed *src/marked_lgcp.h
 b29303759cdfa2ba22b969c3e22fdf02 *src/spde_hawkes.h
 5745bbe5ac63bc4c27e01501d50a3639 *src/stelfi.cpp
 28e9177e9bc4dd724519d8507aa6a441 *tests/testthat.R
-a5cb179a4c1eef64158fbd345b876de9 *tests/testthat/test-fits.R
+7a2201b2efc0b61142d86312a09dafb8 *tests/testthat/test-fits.R
 c2d1cb7e387024508970496a2b46bd87 *tests/testthat/test-utils.R
 d19bb8255d66869c61b1db7a288f5aee *vignettes/stelfi.Rmd
